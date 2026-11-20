@@ -20,7 +20,7 @@ body,
 }
 
 .page {
-  padding: 20px;
+  padding: 0;
 }
 
 .page-header {
@@ -74,4 +74,25 @@ body,
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .filter-bar .el-select,
+  .filter-bar .el-input,
+  .filter-bar .el-date-editor--daterange {
+    width: 100%;
+  }
+
+  .pagination {
+    justify-content: center;
+  }
 }

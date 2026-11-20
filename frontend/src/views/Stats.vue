@@ -5,20 +5,51 @@
       <el-date-picker v-model="month" type="month" value-format="YYYY-MM" placeholder="选择月份" @change="loadMonth" />
     </div>
 
-    <el-row :gutter="16">
-      <el-col :span="8">
+    <el-card class="card">
+      <template #header>自定义区间与环比</template>
+      <div class="filter-bar">
+        <el-date-picker
+          v-model="range"
+          type="daterange"
+          value-format="YYYY-MM-DD"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          @change="loadRange"
+        />
+        <el-button type="primary" :icon="Search" @click="loadRange">统计</el-button>
+      </div>
+      <el-descriptions v-if="rangeStat.startDate" :column="3" border>
+        <el-descriptions-item label="收入">
+          ¥ {{ money(rangeStat.income) }}
+          <span :class="changeClass(rangeStat.incomeChange)">{{ changeText(rangeStat.incomeChange) }}</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="支出">
+          ¥ {{ money(rangeStat.expense) }}
+          <span :class="changeClass(rangeStat.expenseChange)">{{ changeText(rangeStat.expenseChange) }}</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="结余">¥ {{ money(rangeStat.balance) }}</el-descriptions-item>
+        <el-descriptions-item label="上期收入">¥ {{ money(rangeStat.previous.income) }}</el-descriptions-item>
+        <el-descriptions-item label="上期支出">¥ {{ money(rangeStat.previous.expense) }}</el-descriptions-item>
+        <el-descriptions-item label="上期结余">¥ {{ money(rangeStat.previous.balance) }}</el-descriptions-item>
+      </el-descriptions>
+      <el-empty v-else description="请选择日期区间" :image-size="50" />
+    </el-card>
+
+    <el-row :gutter="16" style="margin-top: 16px">
+      <el-col :xs="24" :sm="8">
         <el-card class="card stat-card">
           <div class="stat-label">本月收入</div>
           <div class="stat-value income">¥ {{ money(monthStat.income) }}</div>
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="8">
         <el-card class="card stat-card">
           <div class="stat-label">本月支出</div>
           <div class="stat-value expense">¥ {{ money(monthStat.expense) }}</div>
         </el-card>
       </el-col>
-      <el-col :span="8">
+      <el-col :xs="24" :sm="8">
         <el-card class="card stat-card">
           <div class="stat-label">本月结余</div>
           <div class="stat-value" :class="monthStat.balance >= 0 ? 'income' : 'expense'">
@@ -29,14 +60,14 @@
     </el-row>
 
     <el-row :gutter="16" style="margin-top: 16px">
-      <el-col :span="isBoss ? 12 : 24">
+      <el-col :xs="24" :md="isBoss ? 12 : 24">
         <el-card class="card">
           <template #header>本月分类占比</template>
           <div ref="pieRef" class="chart"></div>
           <el-empty v-if="!monthStat.categories.length" description="本月暂无数据" :image-size="60" />
         </el-card>
       </el-col>
-      <el-col v-if="isBoss" :span="12">
+      <el-col v-if="isBoss" :xs="24" :md="12">
         <el-card class="card">
           <template #header>
             <div class="chart-header">
@@ -72,9 +103,10 @@
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import * as echarts from 'echarts';
 import { ElMessage } from 'element-plus';
+import { Search } from '@element-plus/icons-vue';
 import api, { errorMessage } from '../api';
 import { useAuth } from '../stores/auth';
-import type { MonthStat, YearStat } from '../types';
+import type { MonthStat, RangeStat, YearStat } from '../types';
 import { currentMonth, money } from '../utils';
 
 const { isBoss } = useAuth();
@@ -83,6 +115,21 @@ const month = ref(currentMonth());
 const year = ref(String(new Date().getFullYear()));
 const monthStat = reactive<MonthStat>({ month: '', income: 0, expense: 0, balance: 0, categories: [] });
 const yearStat = reactive<YearStat>({ year: 0, income: 0, expense: 0, balance: 0, months: [] });
+const range = ref<string[]>([]);
+const rangeStat = reactive<RangeStat>({
+  startDate: '',
+  endDate: '',
+  income: 0,
+  expense: 0,
+  balance: 0,
+  previous: { income: 0, expense: 0, balance: 0 },
+  incomeChange: null,
+  expenseChange: null,
+  categories: [],
+});
+
+const changeText = (value: number | null) => (value === null ? '上期无数据' : `${value > 0 ? '+' : ''}${value}%`);
+const changeClass = (value: number | null) => (value === null ? 'muted' : value > 0 ? 'income' : value < 0 ? 'expense' : 'muted');
 
 const pieRef = ref<HTMLDivElement | null>(null);
 const barRef = ref<HTMLDivElement | null>(null);
@@ -95,6 +142,21 @@ async function loadMonth(): Promise<void> {
     Object.assign(monthStat, result);
     await nextTick();
     renderPie();
+  } catch (error) {
+    ElMessage.error(errorMessage(error));
+  }
+}
+
+async function loadRange(): Promise<void> {
+  if (range.value?.length !== 2) {
+    ElMessage.warning('请选择起止日期');
+    return;
+  }
+  try {
+    const result = await api.get<RangeStat>('/stats/range', {
+      params: { startDate: range.value[0], endDate: range.value[1] },
+    });
+    Object.assign(rangeStat, result);
   } catch (error) {
     ElMessage.error(errorMessage(error));
   }
@@ -204,5 +266,10 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.muted {
+  color: #94a3b8;
+  font-size: 12px;
 }
 </style>

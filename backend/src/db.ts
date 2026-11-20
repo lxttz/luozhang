@@ -4,7 +4,7 @@ export async function logAction(
   db: D1Database,
   billId: number | null,
   userId: number,
-  action: 'add' | 'edit' | 'delete',
+  action: 'add' | 'edit' | 'delete' | 'import' | 'review' | 'restore' | 'purge' | 'password',
   content: string,
 ): Promise<void> {
   await db

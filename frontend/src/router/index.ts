@@ -20,7 +20,13 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('../layouts/MainLayout.vue'),
     children: [
-      { path: '', redirect: '/bills' },
+      { path: '', redirect: '/dashboard' },
+      {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: () => import('../views/Dashboard.vue'),
+        meta: { title: '首页看板' },
+      },
       {
         path: 'bills',
         name: 'bills',
@@ -40,10 +46,22 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '分类管理', bossOnly: true },
       },
       {
+        path: 'logs',
+        name: 'logs',
+        component: () => import('../views/Logs.vue'),
+        meta: { title: '操作日志', bossOnly: true },
+      },
+      {
         path: 'users',
         name: 'users',
         component: () => import('../views/Users.vue'),
         meta: { title: '用户管理', bossOnly: true },
+      },
+      {
+        path: 'profile',
+        name: 'profile',
+        component: () => import('../views/Profile.vue'),
+        meta: { title: '个人设置' },
       },
     ],
   },
@@ -68,7 +86,7 @@ router.beforeEach(async (to) => {
       return { name: 'login' };
     }
   }
-  if (to.meta.bossOnly && !auth.isBoss.value) return { name: 'bills' };
+  if (to.meta.bossOnly && !auth.isBoss.value) return { name: 'dashboard' };
   return true;
 });
 

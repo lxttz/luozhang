@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS bills (
   amount REAL NOT NULL,
   bill_date TEXT NOT NULL,
   remark TEXT,
+  status TEXT NOT NULL DEFAULT 'approved' CHECK(status IN ('pending','approved','rejected')),
+  deleted_at TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY(user_id) REFERENCES users(id),
@@ -56,3 +58,6 @@ INSERT OR IGNORE INTO categories(name, type, sort) VALUES
 CREATE INDEX IF NOT EXISTS idx_bills_user ON bills(user_id);
 CREATE INDEX IF NOT EXISTS idx_bills_date ON bills(bill_date);
 CREATE INDEX IF NOT EXISTS idx_bills_category ON bills(category_id);
+CREATE INDEX IF NOT EXISTS idx_bills_status ON bills(status);
+CREATE INDEX IF NOT EXISTS idx_bills_deleted ON bills(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_logs_created ON bill_logs(created_at);

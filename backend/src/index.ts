@@ -7,6 +7,8 @@ import categoryRoutes from './category';
 import userRoutes from './user';
 import statsRoutes from './stats';
 import settingRoutes from './setting';
+import logRoutes from './log';
+import profileRoutes from './profile';
 
 type LoginInput = { username?: string; password?: string };
 type LoginUser = { id: number; username: string; role: 'boss' | 'finance'; name: string | null };
@@ -60,6 +62,8 @@ api.route('/categories', categoryRoutes);
 api.route('/users', userRoutes);
 api.route('/stats', statsRoutes);
 api.route('/settings', settingRoutes);
+api.route('/logs', logRoutes);
+api.route('/profile', profileRoutes);
 
 app.route('/api', api);
 
