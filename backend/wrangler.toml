@@ -1,0 +1,13 @@
+name = "account-book-api"
+main = "src/index.ts"
+compatibility_date = "2025-10-01"
+
+# 把下面的 database_id 替换成你在 Cloudflare 控制台创建 D1 后拿到的 ID
+[[d1_databases]]
+binding = "DB"
+database_name = "account-book-db"
+database_id = "请替换为你的D1数据库ID"
+
+# JWT 密钥不要写在这里，部署前执行：
+#   wrangler secret put JWT_SECRET
+# 本地开发请在 backend/.dev.vars 中配置（可参考 .dev.vars.example）
