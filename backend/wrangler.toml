@@ -6,7 +6,7 @@ compatibility_date = "2025-10-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "account-book-db"
-database_id = "请替换为你的D1数据库ID"
+database_id = "43ccb058-2423-41cb-b507-3ceccf06156c"
 
 # JWT 密钥不要写在这里，部署前执行：
 #   wrangler secret put JWT_SECRET
