@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS settings (
   value TEXT NOT NULL
 );
 INSERT OR IGNORE INTO settings(key, value) VALUES ('allow_finance_delete', '0');
+INSERT OR IGNORE INTO settings(key, value) VALUES ('system_name', '洛账');
 
 -- 初始分类
 INSERT OR IGNORE INTO categories(name, type, sort) VALUES

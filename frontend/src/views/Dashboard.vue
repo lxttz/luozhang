@@ -3,7 +3,7 @@
     <div class="page-header">
       <div>
         <h1 class="page-title">首页看板</h1>
-        <p class="subtitle">{{ stat.date }} · {{ stat.month }}</p>
+        <p class="subtitle">{{ systemName }} · {{ stat.date }} · {{ stat.month }}</p>
       </div>
       <el-button v-if="isFinance" type="primary" :icon="Plus" @click="$router.push('/bills')">去记一笔</el-button>
     </div>
@@ -109,10 +109,12 @@ import { Plus } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import api, { errorMessage } from '../api';
 import { useAuth } from '../stores/auth';
+import { useBranding } from '../stores/branding';
 import type { BillStatus, DashboardStat } from '../types';
 import { money } from '../utils';
 
 const { isFinance } = useAuth();
+const { systemName } = useBranding();
 const loading = ref(false);
 const stat = reactive<DashboardStat>({
   date: '',

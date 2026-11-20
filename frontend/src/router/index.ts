@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import api from '../api';
 import { useAuth, type UserInfo } from '../stores/auth';
+import { useBranding } from '../stores/branding';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -58,6 +59,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '用户管理', bossOnly: true },
       },
       {
+        path: 'settings',
+        name: 'settings',
+        component: () => import('../views/Settings.vue'),
+        meta: { title: '系统设置', bossOnly: true },
+      },
+      {
         path: 'profile',
         name: 'profile',
         component: () => import('../views/Profile.vue'),
@@ -91,7 +98,8 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach((to) => {
-  document.title = to.meta.title ? `${to.meta.title} - 企业简易记账` : '企业简易记账系统';
+  const name = useBranding().systemName.value;
+  document.title = to.meta.title ? `${to.meta.title} - ${name}` : name;
 });
 
 window.addEventListener('auth:unauthorized', () => {

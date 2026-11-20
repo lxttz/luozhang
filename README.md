@@ -11,6 +11,7 @@
 
 ## 功能特性
 
+- 系统品牌：老板可自定义系统名称，登录页、首页、侧边栏和浏览器标题同步生效
 - 首页看板：今日 / 本月收支卡片、最近流水、分类排行
 - 收支流水：按日期、分类、类型、审核状态、关键词筛选，分页展示
 - 单据管理：财务新增 / 编辑自己的账单，新增和修改后进入待审核
@@ -49,6 +50,7 @@
 | 审核单据 | 支持 | 不支持 |
 | 查看年度报表、操作日志 | 支持 | 不支持 |
 | 分类管理、用户管理 | 支持 | 不支持 |
+| 系统设置（系统名称、删单权限） | 支持 | 不支持 |
 | 修改自己的密码 | 支持 | 支持 |
 
 系统不开放注册，所有账号由老板创建。前端隐藏按钮只是体验优化，真正的权限判断在后端。
@@ -72,16 +74,17 @@
 │   │   └── types.ts        # 类型定义
 │   ├── schema.sql          # D1 建表脚本
 │   ├── migration.sql       # 旧库升级脚本
+│   ├── migration-branding.sql # 系统名称配置升级脚本
 │   ├── wrangler.toml       # Worker 与 D1 配置
 │   └── scripts/
 │       └── hash-password.mjs  # 生成初始密码哈希
 ├── frontend/
 │   ├── src/
-│   │   ├── views/          # 看板、流水、统计、日志、分类、用户、个人设置
+│   │   ├── views/          # 看板、流水、统计、日志、分类、用户、系统设置、个人设置
 │   │   ├── layouts/        # 响应式主布局
 │   │   ├── router/         # 路由与登录守卫
 │   │   ├── api/            # axios 封装
-│   │   └── stores/         # 登录状态
+│   │   └── stores/         # 登录状态与系统品牌
 │   └── public/_redirects   # Pages SPA 路由回退
 ├── 信息.md                   # 原始方案
 └── 部署文档.md               # 完整部署文档
@@ -92,6 +95,7 @@
 | 方法 | 路径 | 权限 | 说明 |
 |---|---|---|---|
 | POST | `/api/login` | 公开 | 登录，返回 JWT |
+| GET | `/api/branding` | 公开 | 获取自定义系统名称 |
 | GET | `/api/me` | 登录用户 | 获取当前用户 |
 | GET | `/api/bills` | 老板 / 财务 | 分页流水，支持筛选与状态过滤 |
 | POST | `/api/bills` | 财务 | 新增账单（待审核） |
@@ -149,7 +153,7 @@ npm run dev
 完整步骤见 [部署文档.md](部署文档.md)。概要：
 
 1. Cloudflare 创建 D1 数据库，把 ID 填进 `backend/wrangler.toml`
-2. 执行 `schema.sql` 建表；**旧库升级需执行 `migration.sql`**
+2. 执行 `schema.sql` 建表；**旧库升级依次执行 `migration.sql` 和 `migration-branding.sql`**
 3. 插入老板账号，设置 `JWT_SECRET`
 4. `wrangler deploy` 发布后端
 5. 前端 `.env` 填入 Worker 地址，`npm run build`

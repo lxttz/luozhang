@@ -3,7 +3,7 @@
     <el-aside :width="asideCollapsed ? '64px' : '210px'" class="aside">
       <div class="brand">
         <el-icon><Wallet /></el-icon>
-        <span v-if="!asideCollapsed">企业简易记账</span>
+        <span v-if="!asideCollapsed">{{ systemName }}</span>
       </div>
       <el-menu
         :default-active="route.path"
@@ -37,6 +37,10 @@
         <el-menu-item v-if="isBoss" index="/users">
           <el-icon><User /></el-icon>
           <span>用户管理</span>
+        </el-menu-item>
+        <el-menu-item v-if="isBoss" index="/settings">
+          <el-icon><Setting /></el-icon>
+          <span>系统设置</span>
         </el-menu-item>
       </el-menu>
       <div v-if="!asideCollapsed" class="aside-footer">Cloudflare 免费版</div>
@@ -81,10 +85,12 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '../stores/auth';
+import { useBranding } from '../stores/branding';
 
 const route = useRoute();
 const router = useRouter();
 const { user, isBoss, logout } = useAuth();
+const { systemName } = useBranding();
 const asideCollapsed = ref(false);
 
 onMounted(() => {

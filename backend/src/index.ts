@@ -26,6 +26,12 @@ app.use(
 
 app.get('/', (c) => c.json({ name: 'account-book-api', status: 'ok' }));
 
+app.get('/api/branding', async (c) => {
+  const row = await c.env.DB.prepare("SELECT value FROM settings WHERE key = 'system_name'")
+    .first<{ value: string }>();
+  return c.json({ system_name: row?.value?.trim() || '洛账' });
+});
+
 app.post('/api/login', async (c) => {
   const input = await c.req.json<LoginInput>();
   const username = (input.username || '').trim();

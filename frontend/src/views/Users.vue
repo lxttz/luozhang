@@ -5,17 +5,7 @@
       <el-button type="primary" :icon="Plus" @click="openAdd">新增账号</el-button>
     </div>
 
-    <el-card class="card setting-card">
-      <div class="setting-row">
-        <div>
-          <div class="setting-title">允许财务删除单据</div>
-          <div class="setting-desc">关闭后财务只能新增、编辑自己录入的单据，无法删除</div>
-        </div>
-        <el-switch v-model="allowDelete" :loading="settingLoading" @change="saveSetting" />
-      </div>
-    </el-card>
-
-    <el-card class="card" style="margin-top: 16px">
+    <el-card class="card">
       <el-table :data="list" v-loading="loading" stripe border>
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="username" label="用户名" min-width="140" />
@@ -75,8 +65,6 @@ const { user } = useAuth();
 
 const loading = ref(false);
 const submitting = ref(false);
-const settingLoading = ref(false);
-const allowDelete = ref(false);
 const list = ref<UserItem[]>([]);
 const dialogVisible = ref(false);
 const editingId = ref<number | null>(null);
@@ -85,29 +73,11 @@ const form = reactive({ username: '', password: '', name: '', role: 'finance' as
 async function loadData(): Promise<void> {
   loading.value = true;
   try {
-    const [users, settings] = await Promise.all([
-      api.get<UserItem[]>('/users'),
-      api.get<{ allow_finance_delete: boolean }>('/settings'),
-    ]);
-    list.value = users;
-    allowDelete.value = settings.allow_finance_delete;
+    list.value = await api.get<UserItem[]>('/users');
   } catch (error) {
     ElMessage.error(errorMessage(error));
   } finally {
     loading.value = false;
-  }
-}
-
-async function saveSetting(value: boolean): Promise<void> {
-  settingLoading.value = true;
-  try {
-    await api.put('/settings', { allow_finance_delete: value });
-    ElMessage.success('设置已保存');
-  } catch (error) {
-    allowDelete.value = !value;
-    ElMessage.error(errorMessage(error));
-  } finally {
-    settingLoading.value = false;
   }
 }
 
@@ -181,25 +151,4 @@ async function handleDelete(row: UserItem): Promise<void> {
 onMounted(loadData);
 </script>
 
-<style scoped>
-.setting-card {
-  padding: 4px 16px;
-}
 
-.setting-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-}
-
-.setting-title {
-  font-weight: 600;
-}
-
-.setting-desc {
-  color: #94a3b8;
-  font-size: 12px;
-  margin-top: 4px;
-}
-</style>
